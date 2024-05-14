@@ -1,9 +1,13 @@
-import { _decorator, Component, Node, director, find, Button, EventHandler } from 'cc';
+import { _decorator, Component, Node, director, find, Button, EventHandler, AudioClip, AudioSource } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('Menu')
 export class Menu extends Component {
+    // @property(AudioSource)
+    // _audioSource: AudioSource = null!;
+
     start() {
+        // this.playBGM();
         let loginButton = new EventHandler();
         loginButton.target = this.node;
         loginButton.component = "Menu";
@@ -16,12 +20,14 @@ export class Menu extends Component {
         registerButton.handler = "loadRegisterScene";
         find("Canvas/Background/RegisterButton").getComponent(Button).clickEvents.push(registerButton);
     }
-    
-    loadLoginScene(){
+    // playBGM() {
+        // this._audioSource.play();
+    // }
+    loadLoginScene() {
         console.log("loadLoginScene");
         director.loadScene("login");
     }
-    loadRegisterScene(){
+    loadRegisterScene() {
         console.log("loadRegisterScene");
         director.loadScene("register");
     }

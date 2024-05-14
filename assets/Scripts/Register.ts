@@ -35,7 +35,7 @@ export class Register extends Component {
                 userName: this.userName.string,
             });
             alert("user created successfully");
-            director.loadScene("game");
+            director.loadScene("stageSelect");
             // console.log("user created successfully");
         } catch (error) {
             // alert(error.message);

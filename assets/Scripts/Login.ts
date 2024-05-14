@@ -21,7 +21,7 @@ export class Login extends Component {
             const result = firebase.auth().signInWithEmailAndPassword(this.email.string, this.password.string)
             .then(() => {
                 console.log("user signed in successfully");
-                director.loadScene("game");
+                director.loadScene("stageSelect");
             });
         }
         catch (error) {
