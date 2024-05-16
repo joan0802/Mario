@@ -31,14 +31,10 @@ export class PlayerControl extends Component {
         this.player = this.node.getComponent(RigidBody2D);
         // console.log(this.player);
     }
-    onLoad() {
-        // this.audioSource = this.node.getComponent(AudioSource)!;
-        // this.player = this.node.getComponent(RigidBody);
-        // console.log(this.player);
-    }
 
     onKeyUp(event: EventKeyboard) {
-        this.moveDir = 0;
+        if (event.keyCode == 65 || event.keyCode == 68)
+            this.moveDir = 0;
     }
     onKeyDown(event: EventKeyboard) {
         if (event.keyCode == 87) { // W
@@ -51,9 +47,9 @@ export class PlayerControl extends Component {
         else if (event.keyCode == 68) { // D
             this.moveDir = 1;
         }
-        else {
-            this.moveDir = 0;
-        }
+        // else {
+        //     this.moveDir = 0;
+        // }
     }
     jump() {
         if (!this.isJumping) {

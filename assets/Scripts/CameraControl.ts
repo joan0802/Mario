@@ -1,4 +1,4 @@
-import { _decorator, Component, Node } from 'cc';
+import { _decorator, Component, Node, Camera, Vec3 } from 'cc';
 const { ccclass, property } = _decorator;
 
 @ccclass('CameraControl')
@@ -11,7 +11,9 @@ export class CameraControl extends Component {
     }
 
     update(deltaTime: number) {
-        // var cc.follow
+        if (this.player) {
+            this.node.position = new Vec3(this.player.position.x+400, -70, 0);
+        }
     }
 }
 
