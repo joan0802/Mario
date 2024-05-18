@@ -6,7 +6,7 @@ export default class PlayerControl extends Component {
 
     moveSpeed: number = 100;
     jumpHeight: number = 6;
-    health: number = 1;
+    public health: number = 1;
     life: number = 5;
     moveDir: number = 0;
     position: Vec2 = new Vec2(-562.537, -410.765); // initial position
@@ -67,6 +67,9 @@ export default class PlayerControl extends Component {
             this.player.linearVelocity = new Vec2(0, this.jumpHeight);
             this.audioSource.playOneShot(this.jumpAudio);
         }
+    }
+    powerUp() {
+        this.health += 1;
     }
     update(dt) {
         if (!this.isDead) {
