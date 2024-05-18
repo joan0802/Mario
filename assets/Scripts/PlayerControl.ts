@@ -2,7 +2,7 @@ import { _decorator, Component, Node, input, Input, EventKeyboard, Vec2, AudioCl
 const { ccclass, property } = _decorator;
 
 @ccclass('PlayerControl')
-export class PlayerControl extends Component {
+export default class PlayerControl extends Component {
 
     moveSpeed: number = 100;
     jumpHeight: number = 6;
@@ -11,6 +11,7 @@ export class PlayerControl extends Component {
     moveDir: number = 0;
     position: Vec2 = new Vec2(-562.537, -410.765); // initial position
     isJumping: boolean = false;
+    public isDead = false;
 
     @property({ type: RigidBody })
     player: RigidBody2D = null;
@@ -60,9 +61,6 @@ export class PlayerControl extends Component {
             this.animation.play('run');
             this.node.scale.set(1, 1, 1);
         }
-        // else {
-        //     this.moveDir = 0;
-        // }
     }
     jump() {
         if (!this.isJumping) {
@@ -71,17 +69,20 @@ export class PlayerControl extends Component {
         }
     }
     update(dt) {
-        this.node.position = this.node.position.add(new Vec3(this.moveSpeed * this.moveDir * dt, 0, 0));
-        if (this.player.linearVelocity.y != 0)
-            this.isJumping = true;
-        else
-            this.isJumping = false;
-    }
-
-    onBeginContact(contact, selfCollider, otherCollider) {
-        if(otherCollider.node.parent.name == 'Coins') {
-            this.audioSource.playOneShot(this.coinAudio);
-            otherCollider.node.destroy();
+        if (!this.isDead) {
+            this.node.position = this.node.position.add(new Vec3(this.moveSpeed * this.moveDir * dt, 0, 0));
+            if (this.player.linearVelocity.y != 0)
+                this.isJumping = true;
+            else
+                this.isJumping = false;
+        }
+        else { // reborn
+            this.scheduleOnce(() => {
+                this.node.position = new Vec3(-562.537, -410.765, 0);
+            }, 2);
+            this.scheduleOnce(() => {
+                this.isDead = false;
+            }, 0.5);
         }
     }
 }
