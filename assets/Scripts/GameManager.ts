@@ -1,11 +1,11 @@
-import { _decorator, AudioClip, AudioSource, Collider, Component, find, Vec3, Vec2, tween, RigidBody2D, Node, RigidBody, BoxCollider2D, Contact2DType, EditBox, Label, Sprite, SpriteFrame, IPhysics2DContact, Prefab, instantiate } from 'cc';
+import { _decorator, AudioClip, AudioSource, Collider, Component, find, Vec3, Vec2, tween, RigidBody2D, Node, RigidBody, BoxCollider2D, Contact2DType, EditBox, Label, Sprite, SpriteFrame, IPhysics2DContact, Prefab, instantiate, director } from 'cc';
 import PlayerControl from './PlayerControl';
 const { ccclass, property } = _decorator;
 
 @ccclass('GameManager')
-export class GameManager extends Component {
+export default class GameManager extends Component {
 
-    life: number = 5;
+    public life: number = 5;
     score: number = 0;
     time: number = 300;
 
@@ -26,6 +26,9 @@ export class GameManager extends Component {
     @property({ type: AudioClip })
     powerUpAudio: AudioClip = null!;
 
+    @property({ type: AudioClip })
+    levelClearAudio: AudioClip = null!;
+
     @property({ type: AudioSource })
     audioSource: AudioSource = null!;
 
@@ -36,6 +39,9 @@ export class GameManager extends Component {
 
     @property({ type: Node })
     questions: Node[] = [];
+
+    @property({ type: Node })
+    end: Node = null!;
 
     /* World NavBar */
 
@@ -62,11 +68,24 @@ export class GameManager extends Component {
     @property({ type: Prefab })
     mushroom: Prefab = null!;
 
+    onLoad() {
+        this.resetInEditor();
+    }
+
     start() {
         this.audioSource = this.node.getComponent(AudioSource)!;
         this.coins = find('Canvas/game-bg/TiledMap/Coins')!.children;
         this.questions = find('Canvas/game-bg/TiledMap/Questions')!.children;
+        this.end = find('Canvas/game-bg/TiledMap/End');
 
+        const endCollider = this.end.getComponent(BoxCollider2D);
+        if (endCollider) {
+            endCollider.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: null) => {
+                if (other.node.name == 'player') {
+                    this.win();
+                }
+            });
+        }
         for (let coin of this.coins) {
             const coinCollider = coin.getComponent(BoxCollider2D);
             if (coinCollider) {
@@ -90,6 +109,7 @@ export class GameManager extends Component {
         for (let question of this.questions) {
             const questionCollider = question.getComponent(BoxCollider2D);
             if (questionCollider) {
+                console.log('questionCollider is not null');
                 questionCollider.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: IPhysics2DContact) => {
                     if (other.node.name == 'player' && contact.getWorldManifold().normal.y < 0 && question.getComponent(Sprite).spriteFrame != this.questionDisabled) {
                         this.score += 100;
@@ -136,18 +156,52 @@ export class GameManager extends Component {
         this.floorBound.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: null) => {
             if (other.node.name == 'player') {
                 console.log('player hit the floor');
-                this.player.getComponent(PlayerControl)!.isDead = true;
                 this.life--;
                 this.health.string = this.life.toString();
-                this.audioSource.playOneShot(this.dieAudio);
+                if(this.life == 0) {
+                    this.scheduleOnce(() => {
+                        director.loadScene('gameOver');
+                    }, 0.5);
+                }
+                else {
+                    this.player.getComponent(PlayerControl)!.die();
+                }
+                // this.audioSource.playOneShot(this.dieAudio);
             }
         });
+    }
+
+    win() {
+        this.audioSource.playOneShot(this.levelClearAudio);
+        this.scheduleOnce(() => {
+            director.loadScene('stageSelect')
+            const user = firebase.auth().currentUser;
+            const userRef = firebase.database().ref('users/' + user.uid);
+            userRef.once('value', (snapshot) => {
+                const userData = snapshot.val();
+                const updateScore = this.score > userData.score ? this.score : userData.score;
+
+                userRef.set({
+                    ...userData,
+                    score: updateScore
+                });
+            });
+        }, 2);
+    }
+    loseOneLife() {
+        this.life--;
+        if(this.life == 0) {
+            this.scheduleOnce(() => {
+                director.loadScene('gameOver');
+            }, 0.5);
+        }
     }
 
     update(deltaTime: number) {
         this.scoreLabel.string = this.score.toString();
         this.time -= deltaTime;
         this.timeLabel.string = this.time.toFixed(0).toString();
+        this.health.string = this.life.toString();
     }
 }
 

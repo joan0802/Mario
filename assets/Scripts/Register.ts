@@ -33,6 +33,7 @@ export class Register extends Component {
             await userRef.set({
                 email: this.email.string,
                 userName: this.userName.string,
+                score: 0
             });
             alert("user created successfully");
             director.loadScene("stageSelect");
