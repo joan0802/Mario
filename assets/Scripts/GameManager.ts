@@ -89,7 +89,11 @@ export default class GameManager extends Component {
         for (let coin of this.coins) {
             const coinCollider = coin.getComponent(BoxCollider2D);
             if (coinCollider) {
-                coinCollider.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: null) => {
+                coinCollider.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: IPhysics2DContact) => {
+                    let normal = contact.getWorldManifold().normal;
+                    if(contact.colliderA.node === self.node) {
+                        normal = new Vec2(-normal.x, -normal.y);
+                    }
                     if (other.node.name == 'player') {
                         this.audioSource.playOneShot(this.coinAudio);
                         self.enabled = false;
@@ -111,7 +115,12 @@ export default class GameManager extends Component {
             if (questionCollider) {
                 console.log('questionCollider is not null');
                 questionCollider.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: IPhysics2DContact) => {
-                    if (other.node.name == 'player' && contact.getWorldManifold().normal.y < 0 && question.getComponent(Sprite).spriteFrame != this.questionDisabled) {
+                    let normal = contact.getWorldManifold().normal;
+                    if(contact.colliderA.node === self.node) {
+                        normal = new Vec2(-normal.x, -normal.y);
+                    }
+                    console.log("question normal: ", normal.y);
+                    if (other.node.name == 'player' && normal.y == 1 && question.getComponent(Sprite).spriteFrame != this.questionDisabled) {
                         this.score += 100;
                         question.getComponent(Component).scheduleOnce(() => {
                             question.getComponent(Sprite).spriteFrame = this.questionDisabled;
@@ -158,8 +167,18 @@ export default class GameManager extends Component {
                 console.log('player hit the floor');
                 this.life--;
                 this.health.string = this.life.toString();
-                if(this.life == 0) {
+                if (this.life == 0) {
                     this.scheduleOnce(() => {
+                        const currentScene = director.getScene();
+                        if (currentScene) {
+                            currentScene.walk(node => {
+                                const components = node.getComponentsInChildren(Component);
+                                components.forEach(component => {
+                                    component.unscheduleAllCallbacks();
+                                    component.destroy();
+                                });
+                            });
+                        }
                         director.loadScene('gameOver');
                     }, 0.5);
                 }
@@ -190,8 +209,18 @@ export default class GameManager extends Component {
     }
     loseOneLife() {
         this.life--;
-        if(this.life == 0) {
+        if (this.life == 0) {
             this.scheduleOnce(() => {
+                const currentScene = director.getScene();
+                if (currentScene) {
+                    currentScene.walk(node => {
+                        const components = node.getComponentsInChildren(Component);
+                        components.forEach(component => {
+                            component.unscheduleAllCallbacks();
+                            component.destroy();
+                        });
+                    });
+                }
                 director.loadScene('gameOver');
             }, 0.5);
         }

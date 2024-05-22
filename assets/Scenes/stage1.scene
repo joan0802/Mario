@@ -1215,12 +1215,12 @@
     "_restitution": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": -1.8,
       "y": -2
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 210,
+      "width": 206.5,
       "height": 36
     },
     "_id": "07cI4S/uhBEa4u1PpLb/3K"
@@ -1378,7 +1378,7 @@
     "_prefab": null,
     "_lpos": {
       "__type__": "cc.Vec3",
-      "x": 1558.263,
+      "x": 1558.893,
       "y": 7.942,
       "z": 0
     },
@@ -1956,12 +1956,12 @@
     "_restitution": 0,
     "_offset": {
       "__type__": "cc.Vec2",
-      "x": 0,
+      "x": -0.8,
       "y": -2
     },
     "_size": {
       "__type__": "cc.Size",
-      "width": 50,
+      "width": 39.8,
       "height": 36
     },
     "_id": "97kCnFIZlD6KKQOhSHlotr"

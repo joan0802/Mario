@@ -38,8 +38,13 @@ export class Enemy extends Component {
             const goombaAnimation = goomba.getComponent(AnimationComponent);
             if (goombaCollider) {
                 goombaCollider.on(Contact2DType.BEGIN_CONTACT, (self: BoxCollider2D, other: BoxCollider2D, contact: IPhysics2DContact) => {
-                    if (other.node.name == "player") {
-                        if (contact.getWorldManifold().normal.y < 0) {
+                    let normal = contact.getWorldManifold().normal;
+                    if(contact.colliderA.node === self.node) {
+                        console.log("swap direction");
+                        normal = new Vec2(-normal.x, -normal.y);
+                    }
+                    if (other.node.name == "player" && !contact.disabled) {
+                        if (normal.y < 0) {
                             goombaAnimation.stop();
                             goombaAnimation.play("goombaDie");
                             this.gameManager.getComponent(GameManager).score += 200;
@@ -49,6 +54,7 @@ export class Enemy extends Component {
                             }, 0.5);
                         }
                         else {
+                            console.log('player hurt');
                             contact.disabled = true;
                             this.player.getComponent(PlayerControl).hurt();
                             this.gameManager.getComponent(GameManager).loseOneLife();

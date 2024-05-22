@@ -140,8 +140,6 @@ export default class PlayerControl extends Component {
         }, 2);
     }
     update(dt) {
-        // console.log(this.collider);
-        // console.log(this.node.position.x);
         if (this.isPowerUp) {
             this.collider.offset = new Vec2(0, 8);
         }
